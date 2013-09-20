@@ -25,12 +25,19 @@ class SearchHandler(tornado.web.RequestHandler):
 class MainHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def get(self):
-        self.render("templates/index.html")
+        self.render("index.html")
 
-application = tornado.web.Application([
-    (r"/", MainHandler),
-    (r"/api/search", SearchHandler),
-], template_path=os.path.join(PATH, 'templates'))
+settings = {}
+
+application = tornado.web.Application(
+    [
+        (r"/", MainHandler),
+        (r"/api/search", SearchHandler),
+    ],
+    template_path=os.path.join(PATH, 'templates'),
+    static_path=os.path.join(PATH, 'static'),
+    settings=settings,
+)
 
 
 def main():

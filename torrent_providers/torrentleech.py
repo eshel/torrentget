@@ -33,7 +33,6 @@ def scrape_results(soup):
 
     results = []
     for tr in trows:
-        print(tr)
         name_col = find_class(tr, 'name')
         namelink = name_col.find('a')
         cat_text = name_col.find('b').text
@@ -53,7 +52,7 @@ def scrape_results(soup):
             'leechers': int(find_class(tr, 'leechers').text),
             'torrent': torrent_href,
             'categories': [cat_text.split(' :: ')],
-            'add_date': datetime.datetime.strptime(added_text, '%Y-%m-%d %H:%M:%S'),
+            'add_date': str(datetime.datetime.strptime(added_text, '%Y-%m-%d %H:%M:%S')),
             'comments_count': int(children[7].find('a').text),
             'size': human_size_to_bytes(size_text) / SIZE_UNITS['mb'],
             'downloaded_count': int(children[11].text.replace('times', '')),
@@ -71,6 +70,16 @@ def soup_from_file(infile_path, url=None):
         html_file.close()
     return BeautifulSoup(html, "lxml")
 
+
+def parse(path):
+    soup = soup_from_file(path)
+    return scrape_results(soup)
+
+
+def search(query):
+    return parse(r"d:\\projects\\torrentget\\dumps\\tl1.htm")
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', dest='loglevel', default='critical', help='log level to output to stdout')
@@ -80,8 +89,7 @@ def parse_args(argv):
 
 def main(argv):
     args = parse_args(argv)
-    soup = soup_from_file(args.infile[0])
-    results = scrape_results(soup)
+    results = parse(args.infile[0])
     pprint(results)
 
 

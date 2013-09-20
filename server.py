@@ -4,6 +4,8 @@ from tornado import gen
 import json
 import os
 
+from search import searchTorrents
+
 PATH = '.'
 
 class SearchHandler(tornado.web.RequestHandler):
@@ -19,7 +21,8 @@ class SearchHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def get(self):
         query = self.get_argument('query')
-        self.write({'query': query})
+        response = yield searchTorrents(query)
+        self.write_json(response)
 
 
 class MainHandler(tornado.web.RequestHandler):

@@ -1,2 +1,5 @@
 tornado
 beautifulsoup4
+
+# The following packages are problematic using pip in windows (due to compilation issues)
+lxml

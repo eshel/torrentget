@@ -5,8 +5,8 @@ import sys
 from pprint import pprint
 import logging
 from bs4 import BeautifulSoup
-import lxml
 import datetime
+from urlparse import urljoin
 
 SIZE_UNITS = {
     'kb': 1024,
@@ -15,6 +15,7 @@ SIZE_UNITS = {
     'tb': 1024**4,
 }
 
+TL_BASEURL = "http://www.torrentleech.org/"
 
 def human_size_to_bytes(human):
     human = human.lower().strip()
@@ -39,17 +40,23 @@ def scrape_results(soup):
         added_text = name_col.getText()[-19:]
         children = list(tr.children)
         size_text = children[9].text
+        info = namelink['href']
+        id = info.split('/')[2]
+        info = urljoin(TL_BASEURL, info)
+        torrent_href = find_class(tr, 'quickdownload').find('a')['href']
+        torrent_href = urljoin(TL_BASEURL, torrent_href)
         r = {
+            'id': id,
             'title': namelink.text,
-            'info': namelink['href'],
+            'info': info,
             'seeders': int(find_class(tr, 'seeders').text),
             'leechers': int(find_class(tr, 'leechers').text),
-            'torrent': find_class(tr, 'quickdownload').find('a')['href'],
+            'torrent': torrent_href,
             'categories': [cat_text.split(' :: ')],
             'add_date': datetime.datetime.strptime(added_text, '%Y-%m-%d %H:%M:%S'),
             'comments_count': int(children[7].find('a').text),
-            'size': human_size_to_bytes(size_text),
-            'downloaded_count': int(children[11].text.replace('times','')),
+            'size': human_size_to_bytes(size_text) / SIZE_UNITS['mb'],
+            'downloaded_count': int(children[11].text.replace('times', '')),
         }
         results.append(r)
     return results

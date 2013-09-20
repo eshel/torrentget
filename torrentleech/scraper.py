@@ -57,6 +57,7 @@ def scrape_results(soup):
             'comments_count': int(children[7].find('a').text),
             'size': human_size_to_bytes(size_text) / SIZE_UNITS['mb'],
             'downloaded_count': int(children[11].text.replace('times', '')),
+            'provider': 'torrentleech',
         }
         results.append(r)
     return results
